@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv='X-UA-Compatible' content='IE=11' />
+    <title>Docbox</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <link href='css/base.css' rel='stylesheet' />
+    <link href='css/style.css' rel='stylesheet' />
+    <link href='css/railscasts.css' rel='stylesheet' />
+  </head>
+  <body>
+    <!--START--><div id='app'><div class="container unlimiter" data-reactroot="" data-reactid="1" data-react-checksum="-1795783844"><div class="fixed-top fixed-right space-left16" data-reactid="2"><div class="fill-light col6 pin-right" data-reactid="3"></div></div><div class="space-top5 scroll-styled overflow-auto pad1 width16 sidebar fixed-left fill-dark dark" data-reactid="4"><div class="pad0x small" data-reactid="5"><div class="small pad0x quiet space-top1" data-reactid="6">Introduction</div><a href="#django-skivvy" class="line-height15 pad0x pad00y quiet block " data-reactid="7">django-skivvy</a><div class="small pad0x quiet space-top1" data-reactid="8">Test setup</div><a href="#testing-a-view" class="line-height15 pad0x pad00y quiet block " data-reactid="9">Testing a view</a><a href="#test-configuration" class="line-height15 pad0x pad00y quiet block " data-reactid="10">Test configuration</a><div class="small pad0x quiet space-top1" data-reactid="11">Responses</div><a href="#evaluating-response-content" class="line-height15 pad0x pad00y quiet block " data-reactid="12">Evaluating response content</a><div class="small pad0x quiet space-top1" data-reactid="13">Redirects</div><a href="#evaluating-redirects" class="line-height15 pad0x pad00y quiet block " data-reactid="14">Evaluating redirects</a></div></div><div class="space-left16" data-reactid="15"><div class="" data-reactid="16"><div class="clearfix" data-reactid="17"><div data-title="django-skivvy" class="keyline-top section contain clearfix " data-reactid="18"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="19"><h2 id="django-skivvy">django-skivvy</h2>
+<p>Testing views for Django involves a lot of repetitive code. Each test case evaluates similar cases:</p>
+<ul>
+<li>Accessing the view with an authorized user and returning the correct response content and status.</li>
+<li>Accessing the view with an unauthorized user and return the right response content and status.</li>
+<li>Accessing the view with an unauthenticated user and redirecting to the login page.</li>
+<li>Accessing an object, which is not found in the database and returning a 404 error.</li>
+<li>Posting a valid payload.</li>
+<li>Posting an invalid payload.</li>
+</ul>
+<p>Many of these cases need to be set up in similar ways. The test client needs to call the URL with specified parameters, the user needs to be logged in, an expected response needs to be rendered with a given template and template context and evaluated. </p>
+<p>Using the Django built-in test client is very slow. So we have been experimenting with alternative approaches to testing views. Our approach, however, involves even more repetitive boilerplate code. Views need to be initialized with parameters to identify objects in the database; users need to be assigned, templates need to be rendered with specific template contexts, etc., etc.</p>
+<p>django-skivvy is a mini test framework that addresses the problems and that helps you write better and more readable tests for Django views. You can focus on parametrizing your tests, while django-skivvy takes care of running the tests. </p>
+</div></div><div data-title="Testing a view" class="keyline-top section contain clearfix " data-reactid="20"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="21"><h2 id="testing-a-view">Testing a view</h2>
+<p>django-skivvy provides a mixin <code>ViewTestCase</code> to add additional helper methods to your test case.</p>
+</div></div><div data-title="Testing Django Rest Framework API views" class="keyline-top section contain clearfix " data-reactid="22"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="23"><h3 id="testing-django-rest-framework-api-views">Testing Django Rest Framework API views</h3>
+<p>To test instances of <a href="http://www.django-rest-framework.org/api-guide/views/">DRF's APIView</a>, use <code>APITestCase</code> instead. It behaves exactly as <code>ViewTestCase</code>; the only difference are a few internals in the test setup. </p>
+</div></div><div data-title="Getting a response" class="keyline-top section contain clearfix " data-reactid="24"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="25"><h3 id="getting-a-response">Getting a response</h3>
+<p>The method <code>request</code> returns a response from your view. The response returned is based on the generic <a href="#test-configuration"> configuration</a> of the test case. </p>
+<p>To test special cases, you can use <code>url_kwargs</code>, <code>get_data</code> and <code>post_data</code> parameters to temporarily overwrite the generic test setup. </p>
+<table>
+<thead>
+<tr>
+<th>Argument</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>method</code></td>
+<td><code>str</code></td>
+<td><code>GET</code></td>
+<td>HTTP method used for the request</td>
+</tr>
+<tr>
+<td><code>user</code></td>
+<td><a href="https://docs.djangoproject.com/en/1.9/ref/contrib/auth/#user-model"><code>User</code></a></td>
+<td><a href="https://docs.djangoproject.com/en/1.9/ref/contrib/auth/#django.contrib.auth.models.AnonymousUser"><code>AnonymousUser</code></a></td>
+<td>User authticated with this request.</td>
+</tr>
+<tr>
+<td><code>url_kwargs</code></td>
+<td><code>dict</code></td>
+<td><code>{}</code></td>
+<td>URL arguments passed to the view.  
+<code>ViewTestCase</code>
+ applies this dictionary to what is defined in 
+<code>url_kwargs</code>
+ or 
+<code>get_url_kwargs</code>
+.</td>
+</tr>
+<tr>
+<td><code>get_data</code></td>
+<td><code>dict</code></td>
+<td><code>{}</code></td>
+<td>Adds query parameters to the request URL. E.g., to test a request to 
+<code>/some/path/?filter=foo</code>
+ add 
+<code>get_data={'filter': 'foo'}</code>
+.</td>
+</tr>
+<tr>
+<td><code>post_data</code></td>
+<td><code>dict</code></td>
+<td><code>{}</code></td>
+<td>Request payload, only relevant for 
+<code>POST</code>
+, 
+<code>PUT</code>
+ and 
+<code>PATCH</code>
+ requests. 
+<code>ViewTestCase</code>
+ applies this dictionary to what is defined in 
+<code>post_data</code>
+ or 
+<code>setup_post_data</code>
+. Partial overwrites are allowed.</td>
+</tr>
+<tr>
+<td><code>content_type</code></td>
+<td><code>str</code></td>
+<td><code>application/json</code></td>
+<td><strong>Only available for <code>APITestCase</code></strong>
+. Sets the content type encoding for the request.</td>
+</tr>
+</tbody>
+</table>
+</div></div><div data-title="Evaluating a response" class="keyline-top section contain clearfix " data-reactid="26"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="27"><h3 id="evaluating-a-response">Evaluating a response</h3>
+<p><code>request</code> does not return a Django <a href="https://docs.djangoproject.com/ja/1.9/ref/request-response/#httpresponse-objects">HTTPResponse</a> object. The returned object provides convenient access to important response properties:</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>status_code</code></td>
+<td><code>int</code></td>
+<td>HTTP status code of the response</td>
+</tr>
+<tr>
+<td><code>content</code></td>
+<td><code>str</code>
+, 
+<code>dict</code></td>
+<td>Content of the response. 
+<code>None</code>
+ if request results in a redirect. If the response is of type 
+<code>application/json</code>
+, the response will be parsed into a 
+<code>dict</code>
+.</td>
+</tr>
+<tr>
+<td><code>location</code></td>
+<td><code>str</code></td>
+<td>Redirect location. 
+<code>None</code>
+ if the request does not result in a redirect.</td>
+</tr>
+<tr>
+<td><code>messages</code></td>
+<td><code>list</code></td>
+<td>A list of all messages added to the session.</td>
+</tr>
+<tr>
+<td><code>headers</code></td>
+<td><code>dict</code></td>
+<td>Dictionary of response headers returned from the view.</td>
+</tr>
+</tbody>
+</table>
+</div><div class="space-bottom4 col6 pad2 prose clip fill-light space-top5" data-reactid="28"><h4 id="example-use">Example use</h4>
+</div></div><div data-title="Test configuration" class="keyline-top section contain clearfix " data-reactid="29"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="30"><h2 id="test-configuration">Test configuration</h2>
+<p>django-skivvy's test configuration borrows many ideas from <a href="https://docs.djangoproject.com/en/1.9/topics/class-based-views/generic-display/">Django's generic views</a>. All details of the test configuration can be either set by a constant instance attribute or by overwriting a method, which allows you to add more logic to the test setup. </p>
+</div></div><div data-title="Creating model instances" class="keyline-top section contain clearfix " data-reactid="31"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="32"><h3 id="creating-model-instances">Creating model instances</h3>
+<p>To create model instances that are required in your test, add the method <code>setup_models</code> to the test case.</p>
+</div></div><div data-title="View class" class="keyline-top section contain clearfix " data-reactid="33"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="34"><h3 id="view-class">View class</h3>
+<p>Each test case should only test one view class. To configure the view class, you can use the <code>view_class</code> attribute or the <code>setup_view</code> method. One of both is required; if both <code>view_class</code> and <code>setup_view</code>  provided, the method <code>setup_view</code> is preferred. </p>
+</div><div class="space-bottom4 col6 pad2 prose clip fill-light space-top5" data-reactid="35"><h4 id="attribute-view_class">Attribute: <code>view_class</code></h4>
+<h4 id="method-setup_view">Method: <code>setup_view()</code></h4>
+</div></div><div data-title="URL arguments" class="keyline-top section contain clearfix " data-reactid="36"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="37"><h3 id="url-arguments">URL arguments</h3>
+<p>Many URL patterns expect certain keys, which are passed to connected views to identify model instances. These arguments need to be provided to the view in the test case. To configure URL arguments, you can set the attribute <code>url_kwargs</code> or implement the method <code>setup_url_kwargs</code>. If neither <code>url_kwargs</code> or <code>setup_url_kwargs</code> are present, an empty <code>dict</code> (<code>{}</code>) is passed to the view.</p>
+<p>Both <code>url_kwargs</code> or <code>setup_url_kwargs</code> define default URL arguments for all tests in the test case. Sometimes you might want to test how the view behaves under varying conditions, for instance when you want to test that a <code>404</code> error is returned when a model instance cannot be found in the database. You can overwrite individual URL keys in the <code>request</code> method, by providing the optional <code>url_kwargs</code> argument:</p>
+<p>If you have several URL arguments, and you want to overwrite only some of them, it's sufficient only to provide the keys you want to change. django-skivvy merges those with the default URL arguments. </p>
+</div><div class="space-bottom4 col6 pad2 prose clip fill-light space-top5" data-reactid="38"><h4 id="attribute-url_kwargs">Attribute: <code>url_kwargs</code></h4>
+<h4 id="method-setup_url_kwargs">Method: <code>setup_url_kwargs</code></h4>
+</div></div><div data-title="URL query parameters" class="keyline-top section contain clearfix " data-reactid="39"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="40"><h3 id="url-query-parameters">URL query parameters</h3>
+<p>To query parameters to the request URL, you can set the <code>get_data</code> attribute or implement <code>setup_get_data()</code>. If neither <code>get_data</code> or <code>setup_get_data()</code> are present, no query parameters will be added.</p>
+<p>To add a <code>search</code> query parameter</p>
+<p>Both <code>get_data</code> or <code>setup_get_data</code> define default request query parameters for all tests in the test case. Sometimes you might want to test how the view behaves under varying conditions, for instance, if a resource list is filtered correctly. You can overwrite selected query parameters, by providing the optional get_data argument to the request.</p>
+</div><div class="space-bottom4 col6 pad2 prose clip fill-light space-top5" data-reactid="41"><h4 id="attribute-get_data">Attribute: <code>get_data</code></h4>
+<h4 id="method-setup_get_data">method: <code>setup_get_data</code></h4>
+</div></div><div data-title="Request payload" class="keyline-top section contain clearfix " data-reactid="42"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="43"><h3 id="request-payload">Request payload</h3>
+<p>To setup a default request payload for <code>POST</code>, <code>PATCH</code> or <code>PUT</code> request, you can set the <code>post_data</code> attribute or implement <code>setup_post_data()</code>. If neither <code>post_data</code> or <code>setup_post_data()</code> are present, the request payload defaults to <code>{}</code>. </p>
+<p>Both <code>post_data</code> or <code>setup_post_data</code> define default request payloads for all tests in the test case. Sometimes you might want to test how the view behaves under varying conditions, for instance, that an invalid payload is handled correctly. You can overwrite parts of the request payload in the <code>request</code> method, by providing the optional <code>post_data</code> argument:</p>
+</div><div class="space-bottom4 col6 pad2 prose clip fill-light space-top5" data-reactid="44"><h4 id="attribute-post_data">Attribute: <code>post_data</code></h4>
+<h4 id="method-setup_post_data">method: <code>setup_post_data</code></h4>
+</div></div><div data-title="Evaluating response content" class="keyline-top section contain clearfix " data-reactid="45"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="46"><h2 id="evaluating-response-content">Evaluating response content</h2>
+<p>To evaluate the response's content, ViewTestCase provides the property <code>expected_content</code> that you can use in the test's assertions.</p>
+<p><code>expected_content</code> can be configured by providing a template name and a template context.</p>
+</div></div><div data-title="Configuring template name" class="keyline-top section contain clearfix " data-reactid="47"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="48"><h3 id="configuring-template-name">Configuring template name</h3>
+<p>To configure the template name you can set the attribute <code>template</code> or implement the method <code>setup_template</code> of you need more logic. Either <code>template</code> or <code>setup_template()</code> are required; if both are present <code>setup_template()</code> will be prefered. </p>
+</div><div class="space-bottom4 col6 pad2 prose clip fill-light space-top5" data-reactid="49"><h4 id="attribute-template">Attribute: <code>template</code></h4>
+<h4 id="method-setup_template">method: <code>setup_template</code></h4>
+</div></div><div data-title="Configuring template context" class="keyline-top section contain clearfix " data-reactid="50"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="51"><h3 id="configuring-template-context">Configuring template context</h3>
+<p>To configure the template context, you can provide a static context using the <code>template_context</code> or implement <code>setup_template_context()</code>. If neither <code>template_context</code> or <code>setup_template_context()</code> are present the template context used defaults to <code>{}</code>; if both are present <code>setup_template_context()</code> will be prefered. </p>
+</div><div class="space-bottom4 col6 pad2 prose clip fill-light space-top5" data-reactid="52"><h5 id="attribute-template_context">Attribute: <code>template_context</code></h5>
+<h4 id="method-setup_template_context">Method: <code>setup_template_context</code></h4>
+</div></div><div data-title="Overwriting the template context" class="keyline-top section contain clearfix " data-reactid="53"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="54"><h3 id="overwriting-the-template-context">Overwriting the template context</h3>
+<p>The combination of template and template context defines the default expected response for all tests in the test case. In some cases, you want to test if the template is rendered with an alternative context, for instance, if a form renders the error messages correctly. <code>expected_content</code> uses the method <code>render_content</code> internally. You can use the same method to render alternative views of the template by updating the default context with new values. <code>render_content()</code> allows to add an arbitrary number of keyword arguments, which update the default context.</p>
+</div></div><div data-title="Evaluating redirects" class="keyline-top section contain clearfix " data-reactid="55"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="56"><h2 id="evaluating-redirects">Evaluating redirects</h2>
+<p>When a view redirects to a different location after a request, you can test that too. It is, for example, common to redirect to an object's detail page after an object is created or updated, or to redirect to the login page, when a login is required. </p>
+</div></div><div data-title="expected_success_url" class="keyline-top section contain clearfix " data-reactid="57"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="58"><h3 id="expected_success_url"><code>expected_success_url</code></h3>
+<p><code>ViewTestCase</code> provides the property <code>expected_success_url</code> that you can use in the test's assertions. </p>
+<p>There are different ways to configure what is returned from <code>expected_success_url</code>. </p>
+</div></div><div data-title="Static " class="keyline-top section contain clearfix " data-reactid="59"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="60"><h3 id="static-success_url">Static <code>success_url</code></h3>
+<p>Use this to define a static success URL.</p>
+</div><div class="space-bottom4 col6 pad2 prose clip fill-light space-top5" data-reactid="61"><h4 id="attribute-success_url">Attribute: <code>success_url</code></h4>
+</div></div><div data-title="URL name and URL arguments" class="keyline-top section contain clearfix " data-reactid="62"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="63"><h3 id="url-name-and-url-arguments">URL name and URL arguments</h3>
+<p>To generate the <code>expected_success_url</code>, django-skivvy uses Django's <a href="https://docs.djangoproject.com/en/1.9/ref/urlresolvers/#reverse"><code>reverse</code> function</a>. You have to provide the URL name and URL arguments to generate the success URL. </p>
+<p>The URL name can be defined via the <code>success_url_name</code> attribute. The URL arguments can be provided by the static <code>success_url_kwargs</code> attribute or by implementing the method <code>setup_success_url_kwargs</code> if you need to apply more logic.</p>
+</div><div class="space-bottom4 col6 pad2 prose clip fill-light space-top5" data-reactid="64"><h4 id="attribute-success_url_kwargs">Attribute <code>success_url_kwargs</code></h4>
+<h4 id="method-setup_success_url_kwargs">Method <code>setup_success_url_kwargs</code></h4>
+</div></div><div data-title="Overwriting " class="keyline-top section contain clearfix " data-reactid="65"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="66"><h3 id="overwriting-get_success_url">Overwriting <code>get_success_url()</code></h3>
+<p>Finally, overwriting the method <code>get_success_url()</code> provides the most flexibility. </p>
+</div><div class="space-bottom4 col6 pad2 prose clip fill-light space-top5" data-reactid="67"><h4 id="method-get_success_url">Method <code>get_success_url()</code></h4>
+</div></div></div></div></div><div class="fill-dark dark bottom-shadow fixed-top pad0 width16" data-reactid="68"><a href="/" class="active space-top1 space-left1 pin-topleft icon round dark pad0 fill-red" data-reactid="69"></a><div class="strong small pad0
+          
+          space-left4 line-height15" data-reactid="70">django-skivvy Documentation</div></div></div></div><!--STOP-->
+    <script src='bundle.js'></script>
+  </body>
+</html>
