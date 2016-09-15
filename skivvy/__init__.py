@@ -44,8 +44,10 @@ class ViewTestCase:
         response = view(self._request, **url_params)
 
         content = None
-        if response.status_code == 200 and hasattr(response, 'render'):
+        if hasattr(response, 'render'):
             content = response.render().content.decode('utf-8')
+        elif hasattr(response, 'content'):
+            content = response.content.decode('utf-8')
 
         return Response(
             status_code=response.status_code,
@@ -66,7 +68,7 @@ class ViewTestCase:
         else:
             return self.view_class.as_view(**view_kwargs)
 
-    def _get_get_data(self, data):
+    def _get_get_data(self, data={}):
         get_data = {}
         if hasattr(self, 'setup_get_data'):
             get_data = self.setup_get_data()
@@ -76,7 +78,7 @@ class ViewTestCase:
         get_data.update(data)
         return get_data
 
-    def _get_post_data(self, data):
+    def _get_post_data(self, data={}):
         post_data = {}
         if hasattr(self, 'setup_post_data'):
             post_data = self.setup_post_data()
@@ -98,7 +100,7 @@ class ViewTestCase:
 
     def _get_template(self):
         if hasattr(self, 'setup_template'):
-            return self.setup_template_context()
+            return self.setup_template()
         elif hasattr(self, 'template'):
             return self.template
         else:
