@@ -4,8 +4,10 @@ python:
   - '3.5'
 env:
   matrix:
-    - TOXENV=py34
-    - TOXENV=py35
+    - TOXENV=py34-django19
+    - TOXENV=py35-django19
+    - TOXENV=py34-django110
+    - TOXENV=py35-django110
     - TOXENV=py35-flake8
 install:
   - pip install tox
