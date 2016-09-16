@@ -234,3 +234,15 @@ class MyViewTestCase(ViewTestCase, TestCase):
     def test_invalid_post(self):
         response = self.request(method='POST', post_data={'name': 'Invalid name'})
 ```
+
+### Viewsets
+
+If the view class you are testing is a [`ViewSet`](http://www.django-rest-framework.org/api-guide/viewsets/), then you have to configure `viewset_actions` in the test case. 
+
+#### Attribute `viewset_actions`
+
+```python
+class MyViewTestCase(APITestCase, TestCase):
+    view_class = ViewSetInstance
+    viewset_actions = {'get': 'list'}
+```
