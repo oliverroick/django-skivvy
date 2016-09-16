@@ -1,0 +1,10 @@
+tests
+skivvy
+docs
+django_skivvy.egg-info
+.cache
+.tox
+build
+.coverage
+dist
+.DS_Store
