@@ -3,6 +3,9 @@ django-skivvy
 
 django-skivvy helps you write better and more readable tests for Django views.
 
+.. image:: https://travis-ci.org/Cadasta/django-skivvy.svg?branch=master
+    :target: https://travis-ci.org/Cadasta/django-skivvy
+
 Requirements
 ~~~~~~~~~~~~
 - Python 3.5
