@@ -90,3 +90,5 @@ ENV/
 
 .DS_Store
 docs/node_modules
+docs/dddocs/
+docs/docs-build/

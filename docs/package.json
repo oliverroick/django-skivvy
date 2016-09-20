@@ -8,7 +8,7 @@
     "test": "npm run test-unit && eslint src && npm run prerender -- /dev/null && rm -rf lib",
     "test-unit": "mocha --compilers js:babel-register test",
     "prerender": "babel src --out-dir lib && node lib/render.js",
-    "build": "NODE_ENV=production browserify src/index.js | uglifyjs -c -m > bundle.js && npm run prerender -- index.html"
+    "build": "NODE_ENV=production browserify src/index.js | uglifyjs -c -m > docs-build/bundle.js && npm run prerender -- docs-build/index.html"
   },
   "browserify": {
     "transform": [
