@@ -1,5 +1,6 @@
 import json
 import io
+from importlib import import_module
 from collections import namedtuple
 from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpRequest
@@ -9,8 +10,10 @@ from django.template.loader import render_to_string
 from django.core.urlresolvers import reverse
 from django.contrib.messages.api import get_messages
 from django.test.client import encode_multipart
+from django.conf import settings
 
 __version__ = '0.1.0'
+SessionStore = import_module(settings.SESSION_ENGINE).SessionStore
 Response = namedtuple('Response',
                       'status_code content location messages headers')
 
@@ -28,7 +31,7 @@ class ViewTestCase:
         setattr(self._request, 'method', method)
         setattr(self._request, 'user', user)
 
-        setattr(self._request, 'session', 'session')
+        setattr(self._request, 'session', SessionStore())
         self.messages = FallbackStorage(self._request)
         setattr(self._request, '_messages', self.messages)
 
