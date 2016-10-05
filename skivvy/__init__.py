@@ -30,6 +30,8 @@ class ViewTestCase:
         self._request = HttpRequest()
         setattr(self._request, 'method', method)
         setattr(self._request, 'user', user)
+        self._request.META['SERVER_NAME'] = 'testserver'
+        self._request.META['SERVER_PORT'] = '80'
 
         setattr(self._request, 'session', SessionStore())
         self.messages = FallbackStorage(self._request)
