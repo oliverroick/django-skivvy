@@ -48,10 +48,12 @@ class ViewTestCase:
 
         response = view(self._request, **url_params)
 
+        content_disp = response._headers.get('content-disposition')
         content = None
         if hasattr(response, 'render'):
             content = response.render().content.decode('utf-8')
-        elif hasattr(response, 'content'):
+        elif (hasattr(response, 'content') and
+              not (content_disp and 'attachment' in content_disp[1])):
             content = response.content.decode('utf-8')
 
         return Response(
