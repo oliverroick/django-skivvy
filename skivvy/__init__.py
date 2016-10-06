@@ -12,7 +12,7 @@ from django.contrib.messages.api import get_messages
 from django.test.client import encode_multipart
 from django.conf import settings
 
-__version__ = '0.1.1'
+__version__ = '0.1.2'
 SessionStore = import_module(settings.SESSION_ENGINE).SessionStore
 Response = namedtuple('Response',
                       'status_code content location messages headers')
@@ -48,10 +48,12 @@ class ViewTestCase:
 
         response = view(self._request, **url_params)
 
+        content_disp = response._headers.get('content-disposition')
         content = None
         if hasattr(response, 'render'):
             content = response.render().content.decode('utf-8')
-        elif hasattr(response, 'content'):
+        elif (hasattr(response, 'content') and
+              not (content_disp and 'attachment' in content_disp[1])):
             content = response.content.decode('utf-8')
 
         return Response(
