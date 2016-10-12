@@ -12,7 +12,7 @@ from django.contrib.messages.api import get_messages
 from django.test.client import encode_multipart
 from django.conf import settings
 
-__version__ = '0.1.2'
+__version__ = '0.1.3'
 SessionStore = import_module(settings.SESSION_ENGINE).SessionStore
 Response = namedtuple('Response',
                       'status_code content location messages headers')
