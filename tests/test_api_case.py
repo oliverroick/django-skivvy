@@ -25,6 +25,21 @@ def test_request_get():
     assert len(response.messages) == 0
 
 
+def test_request_overwrite():
+    class TheCase(APITestCase, TestCase):
+        view_class = APITestView
+        request_meta = {'HTTP_REFERER': 'http://example.com'}
+
+    case = TheCase()
+    case.request(
+        request_meta={'HTTP_REFERER': 'http://example.com/blah'})
+
+    assert case._request.method == 'GET'
+    assert case._request.META['SERVER_NAME'] == 'testserver'
+    assert case._request.META['SERVER_PORT'] == '80'
+    assert case._request.META['HTTP_REFERER'] == 'http://example.com/blah'
+
+
 def test_request_post():
     class TheCase(APITestCase, TestCase):
         view_class = APITestView

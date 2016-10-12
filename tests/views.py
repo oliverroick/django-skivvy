@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
 
-class TestView(View):
+class GenericView(View):
     test_arg = False
 
     def get(self, request, *args, **kwargs):
@@ -20,14 +20,14 @@ class TestView(View):
         return HttpResponse('<h1>{}: {}<h1>'.format(field, value))
 
 
-class TestTemplateView(TemplateView):
+class GenericTemplateView(TemplateView):
     template_name = 'test.html'
 
     def get_context_data(self):
         return {'id': 'test-id'}
 
 
-class TestRedirectView(View):
+class GenericRedirectView(View):
     test_arg = False
 
     def get(self, request, *args, **kwargs):

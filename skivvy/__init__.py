@@ -12,7 +12,7 @@ from django.contrib.messages.api import get_messages
 from django.test.client import encode_multipart
 from django.conf import settings
 
-__version__ = '0.1.2'
+__version__ = '0.1.3'
 SessionStore = import_module(settings.SESSION_ENGINE).SessionStore
 Response = namedtuple('Response',
                       'status_code content location messages headers')
@@ -26,12 +26,13 @@ class ViewTestCase:
             self.setup_models()
 
     def request(self, method='GET', user=AnonymousUser(), url_kwargs={},
-                post_data={}, get_data={}, view_kwargs={}):
+                post_data={}, get_data={}, view_kwargs={}, request_meta={}):
         self._request = HttpRequest()
         setattr(self._request, 'method', method)
         setattr(self._request, 'user', user)
         self._request.META['SERVER_NAME'] = 'testserver'
         self._request.META['SERVER_PORT'] = '80'
+        self._request.META.update(self._get_request_meta(request_meta))
 
         setattr(self._request, 'session', SessionStore())
         self.messages = FallbackStorage(self._request)
@@ -123,6 +124,16 @@ class ViewTestCase:
         else:
             return {}
 
+    def _get_request_meta(self, add_meta={}):
+        request_meta = {}
+        if hasattr(self, 'setup_request_meta'):
+            request_meta = self.setup_request_meta()
+        elif hasattr(self, 'request_meta'):
+            request_meta = self.request_meta
+
+        request_meta.update(add_meta)
+        return request_meta
+
     def render_content(self, **context_kwargs):
         template = self._get_template()
         context = self._get_template_context()
@@ -162,12 +173,14 @@ class ViewTestCase:
 
 class APITestCase(ViewTestCase):
     def request(self, method='GET', user=AnonymousUser(), url_kwargs={},
-                post_data={}, get_data={}, content_type='application/json'):
+                post_data={}, get_data={}, content_type='application/json',
+                request_meta={}):
         self._request = HttpRequest()
         setattr(self._request, 'method', method)
         setattr(self._request, '_force_auth_user', user)
         self._request.META['SERVER_NAME'] = 'testserver'
         self._request.META['SERVER_PORT'] = '80'
+        self._request.META.update(self._get_request_meta(request_meta))
 
         url_params = self._get_url_kwargs(url_kwargs)
         view = self.setup_view()

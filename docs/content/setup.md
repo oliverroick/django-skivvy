@@ -195,6 +195,46 @@ class MyViewTestCase(ViewTestCase, TestCase):
         response = self.request(method='GET', get_data={'filter': 'name'})
 ```
 
+### Request meta attributes
+
+You can add additional [meta attributes](https://docs.djangoproject.com/en/1.10/ref/request-response/#django.http.HttpRequest.META) to the request by setting the `request_meta` attribute or implementing `setup_request_meta()`.
+
+#### Attribute: `request_meta`
+
+```python
+from myapp.views import MyView
+
+class MyViewTestCase(ViewTestCase, TestCase):
+    request_meta = {
+        'HTTP_REFERER': 'http://example.com'
+    }
+```
+
+#### method: `setup_post_data`
+
+```python
+class MyViewTestCase(ViewTestCase, TestCase):
+    def setup_models(self):
+        self.project = Project.objects.create(name='My Project')
+
+    def setup_request_meta(self):
+        return {
+            'HTTP_REFERER': 'http://example.com/' + self.project.id
+    }
+```
+
+Both `request_meta` or `setup_request_meta` define default request meta attributes for all tests in the test case. You can overwrite selected meta attributes, by providing the optional `request_meta` argument to the request.
+
+```python
+class MyViewTestCase(ViewTestCase, TestCase):
+    request_meta = {
+        'HTTP_REFERER': 'http://example.com'
+    }
+
+    def test_invalid_referrer(self):
+        response = self.request(request_meta={'HTTP_REFERER': 'http://example.com/not-allowed'})
+```
+
 ### Request payload
 
 To setup a default request payload for `POST`, `PATCH` or `PUT` request, you can set the `post_data` attribute or implement `setup_post_data()`. If neither `post_data` or `setup_post_data()` are present, the request payload defaults to `{}`. 
