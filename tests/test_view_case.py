@@ -5,7 +5,7 @@ from django.http import HttpRequest
 from django.contrib.auth.models import User
 from skivvy import ViewTestCase
 
-from .views import TestView, TestTemplateView, TestRedirectView
+from .views import GenericView, GenericTemplateView, GenericRedirectView
 
 
 def test_setup_models():
@@ -42,20 +42,20 @@ def test_setup_view():
 
 def test_setup_view_from_view_class():
     class TheCase(ViewTestCase, TestCase):
-        view_class = TestView
+        view_class = GenericView
 
     case = TheCase()
     view = case.setup_view()
-    assert view.__name__ == TestView.__name__
+    assert view.__name__ == GenericView.__name__
 
 
 def test_setup_view_from_view_class_with_view_kwargs():
     class TheCase(ViewTestCase, TestCase):
-        view_class = TestView
+        view_class = GenericView
 
     case = TheCase()
     view = case.setup_view(view_kwargs={'test_arg': True})
-    assert view.__name__ == TestView.__name__
+    assert view.__name__ == GenericView.__name__
     assert view.view_initkwargs == {'test_arg': True}
 
 
@@ -337,7 +337,7 @@ def test_expected_content():
 
 def test_request_get():
     class TheCase(ViewTestCase, TestCase):
-        view_class = TestView
+        view_class = GenericView
 
     user = User(username='user')
     case = TheCase()
@@ -356,7 +356,7 @@ def test_request_get():
 
 def test_request_get_template_response():
     class TheCase(ViewTestCase, TestCase):
-        view_class = TestTemplateView
+        view_class = GenericTemplateView
 
     user = User(username='user')
     case = TheCase()
@@ -374,7 +374,7 @@ def test_request_get_template_response():
 
 def test_request_redirect_response():
     class TheCase(ViewTestCase, TestCase):
-        view_class = TestRedirectView
+        view_class = GenericRedirectView
 
     user = User(username='user')
     case = TheCase()
@@ -392,7 +392,7 @@ def test_request_redirect_response():
 
 def test_request_post():
     class TheCase(ViewTestCase, TestCase):
-        view_class = TestView
+        view_class = GenericView
         post_data = {'some': 'data'}
 
     user = User(username='user')
