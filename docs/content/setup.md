@@ -220,7 +220,7 @@ class MyViewTestCase(ViewTestCase, TestCase):
     def setup_request_meta(self):
         return {
             'HTTP_REFERER': 'http://example.com/' + self.project.id
-    }
+        }
 ```
 
 Both `request_meta` or `setup_request_meta` define default request meta attributes for all tests in the test case. You can overwrite selected meta attributes, by providing the optional `request_meta` argument to the request.
