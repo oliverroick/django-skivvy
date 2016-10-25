@@ -5,7 +5,7 @@ from django.http import HttpRequest
 from django.contrib.auth.models import User
 from skivvy import ViewTestCase
 
-from .views import GenericView, GenericTemplateView, GenericRedirectView
+from . import views
 
 
 def test_setup_models():
@@ -42,20 +42,20 @@ def test_setup_view():
 
 def test_setup_view_from_view_class():
     class TheCase(ViewTestCase, TestCase):
-        view_class = GenericView
+        view_class = views.GenericView
 
     case = TheCase()
     view = case.setup_view()
-    assert view.__name__ == GenericView.__name__
+    assert view.__name__ == views.GenericView.__name__
 
 
 def test_setup_view_from_view_class_with_view_kwargs():
     class TheCase(ViewTestCase, TestCase):
-        view_class = GenericView
+        view_class = views.GenericView
 
     case = TheCase()
     view = case.setup_view(view_kwargs={'test_arg': True})
-    assert view.__name__ == GenericView.__name__
+    assert view.__name__ == views.GenericView.__name__
     assert view.view_initkwargs == {'test_arg': True}
 
 
@@ -358,8 +358,8 @@ def test_render_content_update_context():
         _request = HttpRequest()
 
     case = TheCase()
-    content = case.render_content()
-    assert content == '<h1>other-id</h1>\n'
+    content = case.render_content(id='test-id')
+    assert content == '<h1>test-id</h1>\n'
 
 
 def test_expected_content():
@@ -375,7 +375,7 @@ def test_expected_content():
 
 def test_request_get():
     class TheCase(ViewTestCase, TestCase):
-        view_class = GenericView
+        view_class = views.GenericView
         request_meta = {'HTTP_REFERER': 'http://example.com'}
 
     user = User(username='user')
@@ -398,7 +398,7 @@ def test_request_get():
 
 def test_request_overwrite():
     class TheCase(ViewTestCase, TestCase):
-        view_class = GenericView
+        view_class = views.GenericView
         request_meta = {'HTTP_REFERER': 'http://example.com'}
 
     case = TheCase()
@@ -413,7 +413,7 @@ def test_request_overwrite():
 
 def test_request_get_template_response():
     class TheCase(ViewTestCase, TestCase):
-        view_class = GenericTemplateView
+        view_class = views.GenericTemplateView
 
     user = User(username='user')
     case = TheCase()
@@ -431,7 +431,7 @@ def test_request_get_template_response():
 
 def test_request_redirect_response():
     class TheCase(ViewTestCase, TestCase):
-        view_class = GenericRedirectView
+        view_class = views.GenericRedirectView
 
     user = User(username='user')
     case = TheCase()
@@ -449,7 +449,7 @@ def test_request_redirect_response():
 
 def test_request_post():
     class TheCase(ViewTestCase, TestCase):
-        view_class = GenericView
+        view_class = views.GenericView
         post_data = {'some': 'data'}
 
     user = User(username='user')
@@ -464,3 +464,15 @@ def test_request_post():
     assert response.location is None
     assert 'content-type' in response.headers
     assert len(response.messages) == 0
+
+
+def test_render_csrf_token():
+    class TheCase(ViewTestCase, TestCase):
+        view_class = views.CsrfTemplateView
+        template = 'csrf.html'
+
+    case = TheCase()
+    response = case.request()
+
+    assert response.status_code == 200
+    assert response.content == case.expected_content

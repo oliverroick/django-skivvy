@@ -27,6 +27,10 @@ class GenericTemplateView(TemplateView):
         return {'id': 'test-id'}
 
 
+class CsrfTemplateView(TemplateView):
+    template_name = 'csrf.html'
+
+
 class GenericRedirectView(View):
     test_arg = False
 

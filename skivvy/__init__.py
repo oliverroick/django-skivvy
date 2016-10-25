@@ -1,3 +1,4 @@
+import re
 import json
 import io
 from importlib import import_module
@@ -16,6 +17,11 @@ __version__ = '0.1.3'
 SessionStore = import_module(settings.SESSION_ENGINE).SessionStore
 Response = namedtuple('Response',
                       'status_code content location messages headers')
+
+
+def remove_csrf(html):
+    csrf_regex = r'<input[^>]+csrfmiddlewaretoken[^>]+>'
+    return re.sub(csrf_regex, '', html)
 
 
 class ViewTestCase:
@@ -59,7 +65,7 @@ class ViewTestCase:
 
         return Response(
             status_code=response.status_code,
-            content=content,
+            content=remove_csrf(content),
             location=response.get('location', None),
             messages=[str(m) for m in get_messages(self._request)],
             headers=response._headers
@@ -139,7 +145,8 @@ class ViewTestCase:
         context = self._get_template_context()
         context.update(context_kwargs)
 
-        return render_to_string(template, context, request=self._request)
+        html = render_to_string(template, context, request=self._request)
+        return remove_csrf(html)
 
     @property
     def expected_content(self):
