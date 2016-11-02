@@ -1,6 +1,5 @@
 import re
 import json
-import io
 from importlib import import_module
 from collections import namedtuple
 from django.core.exceptions import ImproperlyConfigured
@@ -12,8 +11,9 @@ from django.core.urlresolvers import reverse
 from django.contrib.messages.api import get_messages
 from django.test.client import encode_multipart
 from django.conf import settings
+from rest_framework.test import APIRequestFactory, force_authenticate
 
-__version__ = '0.1.3'
+__version__ = '0.1.4a4'
 SessionStore = import_module(settings.SESSION_ENGINE).SessionStore
 Response = namedtuple('Response',
                       'status_code content location messages headers')
@@ -58,14 +58,14 @@ class ViewTestCase:
         content_disp = response._headers.get('content-disposition')
         content = None
         if hasattr(response, 'render'):
-            content = response.render().content.decode('utf-8')
+            content = remove_csrf(response.render().content.decode('utf-8'))
         elif (hasattr(response, 'content') and
               not (content_disp and 'attachment' in content_disp[1])):
             content = response.content.decode('utf-8')
 
         return Response(
             status_code=response.status_code,
-            content=remove_csrf(content),
+            content=content,
             location=response.get('location', None),
             messages=[str(m) for m in get_messages(self._request)],
             headers=response._headers
@@ -179,20 +179,17 @@ class ViewTestCase:
 
 
 class APITestCase(ViewTestCase):
+    def _get_url_params(self, data={}):
+        get_data = self._get_get_data(data=data)
+        url_params = ['{}={}'.format(k, v) for k, v in get_data.items()]
+        return '&'.join(url_params)
+
     def request(self, method='GET', user=AnonymousUser(), url_kwargs={},
                 post_data={}, get_data={}, content_type='application/json',
                 request_meta={}):
-        self._request = HttpRequest()
-        setattr(self._request, 'method', method)
-        setattr(self._request, '_force_auth_user', user)
-        self._request.META['SERVER_NAME'] = 'testserver'
-        self._request.META['SERVER_PORT'] = '80'
-        self._request.META.update(self._get_request_meta(request_meta))
 
-        url_params = self._get_url_kwargs(url_kwargs)
-        view = self.setup_view()
-
-        setattr(self._request, 'GET', self._get_get_data(get_data))
+        url_params = self._get_url_params(get_data)
+        url = '/?' + url_params if url_params else '/'
 
         if method in ['POST', 'PATCH', 'PUT']:
             post_data = self._get_post_data(post_data)
@@ -204,9 +201,14 @@ class APITestCase(ViewTestCase):
             else:
                 post_data = json.dumps(post_data).encode()
 
-            self._request.META['CONTENT_LENGTH'] = len(post_data)
-            self._request.META['CONTENT_TYPE'] = content_type
-            setattr(self._request, '_stream', io.BytesIO(post_data))
+        factory = APIRequestFactory()
+        req = getattr(factory, method.lower())
+        self._request = req(url, post_data, content_type=content_type)
+        self._request.META.update(self._get_request_meta(request_meta))
+        force_authenticate(self._request, user=user)
+
+        url_params = self._get_url_kwargs(url_kwargs)
+        view = self.setup_view()
 
         response = view(self._request, **url_params)
         content = response.render().content.decode('utf-8')
