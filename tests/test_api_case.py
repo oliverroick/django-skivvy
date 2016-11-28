@@ -5,16 +5,28 @@ from skivvy import APITestCase
 from .views import APITestView, APIXMLTestView, APIViewSetTestView
 
 
+def test_get_url_params():
+    class TheCase(APITestCase, TestCase):
+        def setup_get_data(self):
+            return {'some': 'data', 'key': 'value'}
+
+    case = TheCase()
+    url_params = case._get_url_params()
+    assert 'some=data' in url_params
+    assert 'key=value' in url_params
+
+
 def test_request_get():
     class TheCase(APITestCase, TestCase):
         view_class = APITestView
 
     user = User(username='user')
     case = TheCase()
-    response = case.request(user=user)
+    response = case.request(user=user, get_data={'key': 'value'})
 
     assert case._request.user == user
     assert case._request.method == 'GET'
+    assert case._request.GET.get('key') == 'value'
 
     assert response.status_code == 200
     assert isinstance(response.content, dict)
