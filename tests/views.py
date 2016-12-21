@@ -16,8 +16,8 @@ class GenericView(View):
         return HttpResponse('<h1>Test content<h1>')
 
     def post(self, request, *args, **kwargs):
-        field, value = request.POST.popitem()
-        return HttpResponse('<h1>{}: {}<h1>'.format(field, value))
+        field, value = dict(request.POST).popitem()
+        return HttpResponse('<h1>{}: {}<h1>'.format(field, value[0]))
 
 
 class GenericTemplateView(TemplateView):

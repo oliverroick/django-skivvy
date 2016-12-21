@@ -8,6 +8,17 @@ from skivvy import ViewTestCase
 from . import views
 
 
+def test_get_url_params():
+    class TheCase(ViewTestCase, TestCase):
+        def setup_get_data(self):
+            return {'some': 'data', 'key': 'value'}
+
+    case = TheCase()
+    url_params = case._get_url_params()
+    assert 'some=data' in url_params
+    assert 'key=value' in url_params
+
+
 def test_setup_models():
     class TheCase(ViewTestCase, TestCase):
         id = 0

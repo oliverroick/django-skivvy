@@ -3,17 +3,17 @@ import json
 from importlib import import_module
 from collections import namedtuple
 from django.core.exceptions import ImproperlyConfigured
-from django.http import HttpRequest
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.template.loader import render_to_string
 from django.core.urlresolvers import reverse
 from django.contrib.messages.api import get_messages
 from django.test.client import encode_multipart
+from django.test import RequestFactory
 from django.conf import settings
 from rest_framework.test import APIRequestFactory, force_authenticate
 
-__version__ = '0.1.4'
+__version__ = '0.1.5a2'
 SessionStore = import_module(settings.SESSION_ENGINE).SessionStore
 Response = namedtuple('Response',
                       'status_code content location messages headers')
@@ -25,6 +25,8 @@ def remove_csrf(html):
 
 
 class ViewTestCase:
+    request_factory = RequestFactory
+
     def setUp(self):
         super().setUp()
 
@@ -33,27 +35,9 @@ class ViewTestCase:
 
     def request(self, method='GET', user=AnonymousUser(), url_kwargs={},
                 post_data={}, get_data={}, view_kwargs={}, request_meta={}):
-        self._request = HttpRequest()
-        setattr(self._request, 'method', method)
-        setattr(self._request, 'user', user)
-        self._request.META['SERVER_NAME'] = 'testserver'
-        self._request.META['SERVER_PORT'] = '80'
-        self._request.META.update(self._get_request_meta(request_meta))
-
-        setattr(self._request, 'session', SessionStore())
-        self.messages = FallbackStorage(self._request)
-        setattr(self._request, '_messages', self.messages)
-
-        setattr(self._request, 'GET', self._get_get_data(get_data))
-
-        if method in ['POST', 'PATCH', 'PUT']:
-            post_data = self._get_post_data(post_data)
-            setattr(self._request, method, post_data)
-
-        url_params = self._get_url_kwargs(url_kwargs)
-        view = self.setup_view(view_kwargs=view_kwargs)
-
-        response = view(self._request, **url_params)
+        kwargs = locals()
+        del kwargs['self']
+        self._request, response = self._make_request(**kwargs)
 
         content_disp = response._headers.get('content-disposition')
         content = None
@@ -71,6 +55,39 @@ class ViewTestCase:
             headers=response._headers
         )
 
+    def _make_request(self, method='GET', user=AnonymousUser(), url_kwargs={},
+                      get_data={}, post_data={}, request_meta={},
+                      view_kwargs={}, auth_func=None,
+                      content_type='application/x-www-form-urlencoded'):
+        self.content_type = content_type
+        url_params = self._get_url_params(get_data)
+        url = '/?' + url_params if url_params else '/'
+
+        if method in ['POST', 'PATCH', 'PUT']:
+            post_data = self._get_post_data(post_data,
+                                            content_type=content_type)
+
+        req = getattr(self.request_factory(), method.lower())
+        request = req(url, post_data, content_type=self.content_type)
+        request.META.update(self._get_request_meta(request_meta))
+
+        if isinstance(self, ViewTestCase):
+            setattr(request, 'session', SessionStore())
+            self.messages = FallbackStorage(request)
+            setattr(request, '_messages', self.messages)
+
+        if auth_func:
+            auth_func(request, user)
+        else:
+            setattr(request, 'user', user)
+
+        url_params = self._get_url_kwargs(url_kwargs)
+        view = self.setup_view(view_kwargs=view_kwargs)
+
+        response = view(request, **url_params)
+
+        return request, response
+
     def setup_view(self, view_kwargs={}):
         if not hasattr(self, 'view_class'):
             raise ImproperlyConfigured(
@@ -82,6 +99,11 @@ class ViewTestCase:
         else:
             return self.view_class.as_view(**view_kwargs)
 
+    def _get_url_params(self, data={}):
+        get_data = self._get_get_data(data=data)
+        url_params = ['{}={}'.format(k, v) for k, v in get_data.items()]
+        return '&'.join(url_params)
+
     def _get_get_data(self, data={}):
         get_data = {}
         if hasattr(self, 'setup_get_data'):
@@ -92,7 +114,7 @@ class ViewTestCase:
         get_data.update(data)
         return get_data
 
-    def _get_post_data(self, data={}):
+    def _get_post_data(self, data={}, content_type=None):
         post_data = {}
         if hasattr(self, 'setup_post_data'):
             post_data = self.setup_post_data()
@@ -100,6 +122,10 @@ class ViewTestCase:
             post_data = self.post_data.copy()
 
         post_data.update(data)
+
+        if content_type == 'application/x-www-form-urlencoded':
+            post_data = '&'.join(['{}={}'.format(k, v)
+                                 for k, v in post_data.items()])
         return post_data
 
     def _get_url_kwargs(self, add_args={}):
@@ -179,38 +205,26 @@ class ViewTestCase:
 
 
 class APITestCase(ViewTestCase):
-    def _get_url_params(self, data={}):
-        get_data = self._get_get_data(data=data)
-        url_params = ['{}={}'.format(k, v) for k, v in get_data.items()]
-        return '&'.join(url_params)
+    request_factory = APIRequestFactory
+
+    def _get_post_data(self, post_data={}, content_type='application/json'):
+        post_data = super()._get_post_data(post_data)
+        if content_type == 'multipart/form-data':
+            self.content_type = 'multipart/form-data; boundary=BoUnDaRyStRiNg'
+            post_data = encode_multipart('BoUnDaRyStRiNg', post_data)
+
+        else:
+            post_data = json.dumps(post_data).encode()
+        return post_data
 
     def request(self, method='GET', user=AnonymousUser(), url_kwargs={},
                 post_data={}, get_data={}, content_type='application/json',
                 request_meta={}):
+        kwargs = locals()
+        del kwargs['self']
+        self._request, response = self._make_request(
+            auth_func=force_authenticate, **kwargs)
 
-        url_params = self._get_url_params(get_data)
-        url = '/?' + url_params if url_params else '/'
-
-        if method in ['POST', 'PATCH', 'PUT']:
-            post_data = self._get_post_data(post_data)
-
-            if content_type == 'multipart/form-data':
-                content_type = 'multipart/form-data; boundary=BoUnDaRyStRiNg'
-                post_data = encode_multipart('BoUnDaRyStRiNg', post_data)
-
-            else:
-                post_data = json.dumps(post_data).encode()
-
-        factory = APIRequestFactory()
-        req = getattr(factory, method.lower())
-        self._request = req(url, post_data, content_type=content_type)
-        self._request.META.update(self._get_request_meta(request_meta))
-        force_authenticate(self._request, user=user)
-
-        url_params = self._get_url_kwargs(url_kwargs)
-        view = self.setup_view()
-
-        response = view(self._request, **url_params)
         content = response.render().content.decode('utf-8')
         if 'application/json' in response._headers.get('content-type', ()):
             content = json.loads(content)
