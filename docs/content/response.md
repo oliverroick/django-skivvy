@@ -89,3 +89,19 @@ class MyViewTestCase(ViewTestCase, TestCase):
         assert response.status_code == 200
         assert response.content == expected_response
 ```
+
+### Removing CSRF tokens from the response
+
+Since version 1.10, Django changes the CSRF token on each request. If you render a template twice the CSRF token changes and comparing both results will fail. 
+
+django-skivvy removes all CRSF tokens from rendered response automatically. If you have a special case where you render a template without using django-skivvy, you can use `remove_csrf` to remove the token from the response.
+
+```python
+from skivvy import remove_csrf
+
+class MyViewTestCase(ViewTestCase, TestCase):
+    def test_view(self):
+        response_html = self.get_some_rendered_response()
+        no_csrf = remove_csrf(response_html)
+
+```

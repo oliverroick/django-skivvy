@@ -5,15 +5,16 @@ from skivvy import APITestCase
 from .views import APITestView, APIXMLTestView, APIViewSetTestView
 
 
-def test_get_url_params():
+def test_get_post_data_multipart():
     class TheCase(APITestCase, TestCase):
-        def setup_get_data(self):
-            return {'some': 'data', 'key': 'value'}
+        post_data = {'some': 'data'}
 
     case = TheCase()
-    url_params = case._get_url_params()
-    assert 'some=data' in url_params
-    assert 'key=value' in url_params
+    post_data = case._get_post_data(content_type='multipart/form-data')
+    print(post_data)
+    assert (post_data.decode() == '--BoUnDaRyStRiNg\r\nContent-Disposition: '
+                                  'form-data; name="some"\r\n\r\ndata\r\n--'
+                                  'BoUnDaRyStRiNg--\r\n')
 
 
 def test_request_get():
