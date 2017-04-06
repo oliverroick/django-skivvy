@@ -13,7 +13,7 @@ from django.test import RequestFactory
 from django.conf import settings
 from rest_framework.test import APIRequestFactory, force_authenticate
 
-__version__ = '0.1.5a2'
+__version__ = '0.1.5'
 SessionStore = import_module(settings.SESSION_ENGINE).SessionStore
 Response = namedtuple('Response',
                       'status_code content location messages headers')
