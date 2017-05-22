@@ -1,3 +1,4 @@
+from unittest.mock import MagicMock
 from django.test import TestCase
 from django.contrib.auth.models import User
 from skivvy import APITestCase
@@ -136,3 +137,18 @@ def test_request_viewset_actions():
     assert 'content-type' in response.headers
     assert response.headers['content-type'][1] == 'application/json'
     assert len(response.messages) == 0
+
+
+def test_request_overwrite_view_kwargs():
+    # default view_kwargs are {'test_arg': False}; by overwriting view_kwargs
+    # in request(), setup_view should be called with
+    # view_kwargs={'test_arg': True}
+
+    class TheCase(APITestCase, TestCase):
+        view_class = APITestView
+
+    case = TheCase()
+    case.setup_view = MagicMock()
+    case.request(view_kwargs={'test_arg': True})
+
+    case.setup_view.assert_called_with(view_kwargs={'test_arg': True})

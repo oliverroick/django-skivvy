@@ -219,7 +219,7 @@ class APITestCase(ViewTestCase):
 
     def request(self, method='GET', user=AnonymousUser(), url_kwargs={},
                 post_data={}, get_data={}, content_type='application/json',
-                request_meta={}):
+                request_meta={}, view_kwargs={}):
         kwargs = locals()
         del kwargs['self']
         self._request, response = self._make_request(

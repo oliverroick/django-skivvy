@@ -39,6 +39,8 @@ class GenericRedirectView(View):
 
 
 class APITestView(APIView):
+    test_arg = False
+
     def get(self, request, *args, **kwargs):
         return Response({"some": "json"})
 
