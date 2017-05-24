@@ -13,7 +13,7 @@ from django.test import RequestFactory
 from django.conf import settings
 from rest_framework.test import APIRequestFactory, force_authenticate
 
-__version__ = '0.1.5'
+__version__ = '0.1.6'
 SessionStore = import_module(settings.SESSION_ENGINE).SessionStore
 Response = namedtuple('Response',
                       'status_code content location messages headers')
@@ -219,7 +219,7 @@ class APITestCase(ViewTestCase):
 
     def request(self, method='GET', user=AnonymousUser(), url_kwargs={},
                 post_data={}, get_data={}, content_type='application/json',
-                request_meta={}):
+                request_meta={}, view_kwargs={}):
         kwargs = locals()
         del kwargs['self']
         self._request, response = self._make_request(
