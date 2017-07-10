@@ -11,11 +11,14 @@ from . import views
 def test_get_url_params():
     class TheCase(ViewTestCase, TestCase):
         def setup_get_data(self):
-            return {'some': 'data', 'key': 'value'}
+            return {
+                'some': 'abc def :/?#[]@!$&\'()*+,;=',
+                'key': 'value'}
 
     case = TheCase()
     url_params = case._get_url_params()
-    assert 'some=data' in url_params
+    reserved_str = '%3A%2F%3F%23%5B%5D%40%21%24%26%27%28%29%2A%2B%2C%3B%3D'
+    assert 'some=abc+def+%s' % reserved_str in url_params
     assert 'key=value' in url_params
 
 
@@ -461,7 +464,7 @@ def test_request_redirect_response():
 def test_request_post():
     class TheCase(ViewTestCase, TestCase):
         view_class = views.GenericView
-        post_data = {'some': 'data'}
+        post_data = {'data': 'abc def :/?#[]@!$&\'()*+,;='}
 
     user = User(username='user')
     case = TheCase()
@@ -471,7 +474,7 @@ def test_request_post():
     assert case._request.method == 'POST'
 
     assert response.status_code == 200
-    assert response.content == '<h1>some: data<h1>'
+    assert response.content == '<h1>data: abc def :/?#[]@!$&\'()*+,;=<h1>'
     assert response.location is None
     assert 'content-type' in response.headers
     assert len(response.messages) == 0

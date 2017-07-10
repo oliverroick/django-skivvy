@@ -1,3 +1,4 @@
+from urllib import parse
 import re
 import json
 from importlib import import_module
@@ -13,7 +14,7 @@ from django.test import RequestFactory
 from django.conf import settings
 from rest_framework.test import APIRequestFactory, force_authenticate
 
-__version__ = '0.1.6'
+__version__ = '0.1.7'
 SessionStore = import_module(settings.SESSION_ENGINE).SessionStore
 Response = namedtuple('Response',
                       'status_code content location messages headers')
@@ -100,9 +101,7 @@ class ViewTestCase:
             return self.view_class.as_view(**view_kwargs)
 
     def _get_url_params(self, data={}):
-        get_data = self._get_get_data(data=data)
-        url_params = ['{}={}'.format(k, v) for k, v in get_data.items()]
-        return '&'.join(url_params)
+        return self._url_encode_data(self._get_get_data(data=data))
 
     def _get_get_data(self, data={}):
         get_data = {}
@@ -124,8 +123,7 @@ class ViewTestCase:
         post_data.update(data)
 
         if content_type == 'application/x-www-form-urlencoded':
-            post_data = '&'.join(['{}={}'.format(k, v)
-                                 for k, v in post_data.items()])
+            post_data = self._url_encode_data(post_data)
         return post_data
 
     def _get_url_kwargs(self, add_args={}):
@@ -202,6 +200,11 @@ class ViewTestCase:
     @property
     def expected_success_url(self):
         return self.get_success_url()
+
+    @staticmethod
+    def _url_encode_data(data):
+        return '&'.join(['{}={}'.format(k, parse.quote_plus(v))
+                        for k, v in data.items()])
 
 
 class APITestCase(ViewTestCase):
