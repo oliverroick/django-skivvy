@@ -12,7 +12,6 @@ def test_get_post_data_multipart():
 
     case = TheCase()
     post_data = case._get_post_data(content_type='multipart/form-data')
-    print(post_data)
     assert (post_data.decode() == '--BoUnDaRyStRiNg\r\nContent-Disposition: '
                                   'form-data; name="some"\r\n\r\ndata\r\n--'
                                   'BoUnDaRyStRiNg--\r\n')

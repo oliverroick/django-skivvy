@@ -480,6 +480,44 @@ def test_request_post():
     assert len(response.messages) == 0
 
 
+def test_request_post_with_number():
+    class TheCase(ViewTestCase, TestCase):
+        view_class = views.GenericView
+        post_data = {'data': 1}
+
+    user = User(username='user')
+    case = TheCase()
+    response = case.request(user=user, method='POST')
+
+    assert case._request.user == user
+    assert case._request.method == 'POST'
+
+    assert response.status_code == 200
+    assert response.content == '<h1>data: 1<h1>'
+    assert response.location is None
+    assert 'content-type' in response.headers
+    assert len(response.messages) == 0
+
+
+def test_request_post_with_bool():
+    class TheCase(ViewTestCase, TestCase):
+        view_class = views.GenericView
+        post_data = {'data': True}
+
+    user = User(username='user')
+    case = TheCase()
+    response = case.request(user=user, method='POST')
+
+    assert case._request.user == user
+    assert case._request.method == 'POST'
+
+    assert response.status_code == 200
+    assert response.content == '<h1>data: True<h1>'
+    assert response.location is None
+    assert 'content-type' in response.headers
+    assert len(response.messages) == 0
+
+
 def test_render_csrf_token():
     class TheCase(ViewTestCase, TestCase):
         view_class = views.CsrfTemplateView

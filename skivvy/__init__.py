@@ -14,7 +14,7 @@ from django.test import RequestFactory
 from django.conf import settings
 from rest_framework.test import APIRequestFactory, force_authenticate
 
-__version__ = '0.1.7'
+__version__ = '0.1.8'
 SessionStore = import_module(settings.SESSION_ENGINE).SessionStore
 Response = namedtuple('Response',
                       'status_code content location messages headers')
@@ -203,7 +203,7 @@ class ViewTestCase:
 
     @staticmethod
     def _url_encode_data(data):
-        return '&'.join(['{}={}'.format(k, parse.quote_plus(v))
+        return '&'.join(['{}={}'.format(k, parse.quote_plus(str(v)))
                         for k, v in data.items()])
 
 
