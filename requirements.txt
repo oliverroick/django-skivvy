@@ -5,5 +5,5 @@ pytest-cov==2.5.1
 pytest-django==3.1.2
 flake8==3.4.1
 django==1.11.4
-djangorestframework==3.6.3
+djangorestframework==3.6.4
 
