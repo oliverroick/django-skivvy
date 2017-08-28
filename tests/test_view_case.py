@@ -528,3 +528,21 @@ def test_render_csrf_token():
 
     assert response.status_code == 200
     assert response.content == case.expected_content
+
+
+def test_request_get_with_session_data():
+    class TheCase(ViewTestCase, TestCase):
+        view_class = views.GenericView
+
+    case = TheCase()
+    session_data = {'s_data': 'Session Data'}
+    response = case.request(method='GET', session_data=session_data)
+    assert case._request.method == 'GET'
+    assert case._request.session['s_data'] == 'Session Data'
+
+    assert response.status_code == 200
+    assert response.content == '<h1>Test content<h1><p>Session Data</p>'
+    assert response.location is None
+    assert 'content-type' in response.headers
+    assert len(response.messages) == 1
+    assert 'Hello world.' in response.messages

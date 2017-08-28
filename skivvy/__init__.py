@@ -35,7 +35,8 @@ class ViewTestCase:
             self.setup_models()
 
     def request(self, method='GET', user=AnonymousUser(), url_kwargs={},
-                post_data={}, get_data={}, view_kwargs={}, request_meta={}):
+                post_data={}, get_data={}, view_kwargs={}, request_meta={},
+                session_data={}):
         kwargs = locals()
         del kwargs['self']
         self._request, response = self._make_request(**kwargs)
@@ -59,7 +60,8 @@ class ViewTestCase:
     def _make_request(self, method='GET', user=AnonymousUser(), url_kwargs={},
                       get_data={}, post_data={}, request_meta={},
                       view_kwargs={}, auth_func=None,
-                      content_type='application/x-www-form-urlencoded'):
+                      content_type='application/x-www-form-urlencoded',
+                      session_data={}):
         self.content_type = content_type
         url_params = self._get_url_params(get_data)
         url = '/?' + url_params if url_params else '/'
@@ -76,6 +78,8 @@ class ViewTestCase:
             setattr(request, 'session', SessionStore())
             self.messages = FallbackStorage(request)
             setattr(request, '_messages', self.messages)
+            for k, v in session_data.items():
+                request.session[k] = v
 
         if auth_func:
             auth_func(request, user)
