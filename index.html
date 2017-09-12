@@ -10,7 +10,7 @@
     <link href='css/railscasts.css' rel='stylesheet' />
   </head>
   <body>
-    <!--START--><div id='app'><div class="container unlimiter" data-reactroot="" data-reactid="1" data-react-checksum="-1261455490"><div class="fixed-top fixed-right space-left16" data-reactid="2"><div class="fill-light col6 pin-right" data-reactid="3"></div></div><div class="space-top5 scroll-styled overflow-auto pad1 width16 sidebar fixed-left fill-dark dark" data-reactid="4"><div class="pad0x small" data-reactid="5"><div class="small pad0x quiet space-top1" data-reactid="6">Introduction</div><a href="#django-skivvy" class="line-height15 pad0x pad00y quiet block " data-reactid="7">django-skivvy</a><div class="small pad0x quiet space-top1" data-reactid="8">Test setup</div><a href="#testing-a-view" class="line-height15 pad0x pad00y quiet block " data-reactid="9">Testing a view</a><a href="#test-configuration" class="line-height15 pad0x pad00y quiet block " data-reactid="10">Test configuration</a><div class="small pad0x quiet space-top1" data-reactid="11">Responses</div><a href="#evaluating-response-content" class="line-height15 pad0x pad00y quiet block " data-reactid="12">Evaluating response content</a><div class="small pad0x quiet space-top1" data-reactid="13">Redirects</div><a href="#evaluating-redirects" class="line-height15 pad0x pad00y quiet block " data-reactid="14">Evaluating redirects</a></div></div><div class="space-left16" data-reactid="15"><div class="" data-reactid="16"><div class="clearfix" data-reactid="17"><div data-title="django-skivvy" class="keyline-top section contain clearfix " data-reactid="18"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="19"><h2 id="django-skivvy">django-skivvy</h2>
+    <!--START--><div id='app'><div class="container unlimiter" data-reactroot="" data-reactid="1" data-react-checksum="829661946"><div class="fixed-top fixed-right space-left16" data-reactid="2"><div class="fill-light col6 pin-right" data-reactid="3"></div></div><div class="space-top5 scroll-styled overflow-auto pad1 width16 sidebar fixed-left fill-dark dark" data-reactid="4"><div class="pad0x small" data-reactid="5"><div class="small pad0x quiet space-top1" data-reactid="6">Introduction</div><a href="#django-skivvy" class="line-height15 pad0x pad00y quiet block " data-reactid="7">django-skivvy</a><div class="small pad0x quiet space-top1" data-reactid="8">Test setup</div><a href="#testing-a-view" class="line-height15 pad0x pad00y quiet block " data-reactid="9">Testing a view</a><a href="#test-configuration" class="line-height15 pad0x pad00y quiet block " data-reactid="10">Test configuration</a><div class="small pad0x quiet space-top1" data-reactid="11">Responses</div><a href="#evaluating-response-content" class="line-height15 pad0x pad00y quiet block " data-reactid="12">Evaluating response content</a><div class="small pad0x quiet space-top1" data-reactid="13">Redirects</div><a href="#evaluating-redirects" class="line-height15 pad0x pad00y quiet block " data-reactid="14">Evaluating redirects</a></div></div><div class="space-left16" data-reactid="15"><div class="" data-reactid="16"><div class="clearfix" data-reactid="17"><div data-title="django-skivvy" class="keyline-top section contain clearfix " data-reactid="18"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="19"><h2 id="django-skivvy">django-skivvy</h2>
 <p>Testing views for Django involves a lot of repetitive code. Each test case evaluates similar cases:</p>
 <ul>
 <li>Accessing the view with an authorized user and returning the correct response content and status.</li>
@@ -28,8 +28,8 @@
 </div></div><div data-title="Testing Django Rest Framework API views" class="keyline-top section contain clearfix " data-reactid="22"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="23"><h3 id="testing-django-rest-framework-api-views">Testing Django Rest Framework API views</h3>
 <p>To test instances of <a href="http://www.django-rest-framework.org/api-guide/views/">DRF's APIView</a>, use <code>APITestCase</code> instead. It behaves exactly as <code>ViewTestCase</code>; the only difference are a few internals in the test setup. </p>
 </div></div><div data-title="Getting a response" class="keyline-top section contain clearfix " data-reactid="24"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="25"><h3 id="getting-a-response">Getting a response</h3>
-<p>The method <code>request</code> returns a response from your view. The response returned is based on the generic <a href="#test-configuration"> configuration</a> of the test case. </p>
-<p>To test special cases, you can use <code>url_kwargs</code>, <code>get_data</code> and <code>post_data</code> parameters to temporarily overwrite the generic test setup. </p>
+<p>The method <code>request</code> returns a response from your view. The response returned is based on the generic <a href="#test-configuration">configuration</a> of the test case. </p>
+<p>To test special cases, you can use <code>url_kwargs</code>, <code>get_data</code>, <code>post_data</code>, <code>session_data</code>, <code>view_kwargs</code> and <code>content_type</code> parameters to temporarily overwrite the generic test setup. </p>
 <table>
 <thead>
 <tr>
@@ -50,7 +50,7 @@
 <td><code>user</code></td>
 <td><a href="https://docs.djangoproject.com/en/1.9/ref/contrib/auth/#user-model"><code>User</code></a></td>
 <td><a href="https://docs.djangoproject.com/en/1.9/ref/contrib/auth/#django.contrib.auth.models.AnonymousUser"><code>AnonymousUser</code></a></td>
-<td>User authticated with this request.</td>
+<td>User authenticated with this request.</td>
 </tr>
 <tr>
 <td><code>url_kwargs</code></td>
@@ -91,6 +91,22 @@
  or 
 <code>setup_post_data</code>
 . Partial overwrites are allowed.</td>
+</tr>
+<tr>
+<td><code>session_data</code></td>
+<td><code>dict</code></td>
+<td><code>{}</code></td>
+<td>If your view relies on data from the session store, you can provide this data using 
+<code>session_data</code>
+.</td>
+</tr>
+<tr>
+<td><code>view_kwargs</code></td>
+<td><code>dict</code></td>
+<td><code>{}</code></td>
+<td>Overwrites attributes set in the view class. The behaviour corresponds to 
+<a href="https://docs.djangoproject.com/en/1.11/topics/class-based-views/#simple-usage-in-your-urlconf">providing keyword arguments to a class-based view's <code>as_view()</code> method</a>
+.</td>
 </tr>
 <tr>
 <td><code>content_type</code></td>
