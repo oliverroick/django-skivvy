@@ -19,7 +19,7 @@ except ImportError:
     # For Django 2.x
     from django.urls import reverse
 
-__version__ = '0.1.9'
+__version__ = '0.1.10'
 SessionStore = import_module(settings.SESSION_ENGINE).SessionStore
 Response = namedtuple('Response',
                       'status_code content location messages headers')
