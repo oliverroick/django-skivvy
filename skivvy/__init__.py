@@ -7,12 +7,17 @@ from django.core.exceptions import ImproperlyConfigured
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.template.loader import render_to_string
-from django.core.urlresolvers import reverse
 from django.contrib.messages.api import get_messages
 from django.test.client import encode_multipart
 from django.test import RequestFactory
 from django.conf import settings
 from rest_framework.test import APIRequestFactory, force_authenticate
+try:
+    # For Django 1.11.x
+    from django.core.urlresolvers import reverse
+except ImportError:
+    # For Django 2.x
+    from django.urls import reverse
 
 __version__ = '0.1.9'
 SessionStore = import_module(settings.SESSION_ENGINE).SessionStore
