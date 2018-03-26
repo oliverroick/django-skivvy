@@ -1,20 +1,20 @@
 language: python
 sudo: false
 python:
+  - '3.4'
   - '3.5'
+  - '3.6'
 env:
-  - TOXENV=py34-django111
-  - TOXENV=py35-django111
-  - TOXENV=py34-django20
-  - TOXENV=py35-django20
-  - TOXENV=py35-flake8
-matrix:
+  - DJANGO_VERSION='1.11,<2.0'
+  - DJANGO_VERSION='2.0,<2.1'
+jobs:
   include:
-    - python: "3.6"
-      env: TOXENV=py36-django111
-    - python: "3.6"
-      env: TOXENV=py36-django20
+    - stage: flake8
+      python: '3.6'
+      script: flake8 skivvy tests
 install:
-  - pip install tox
+  - pip install -r requirements.txt
+  - pip install "django>=$DJANGO_VERSION"
+  - python3 -m django --version
 script:
-  - tox -e $TOXENV
+  - py.test
