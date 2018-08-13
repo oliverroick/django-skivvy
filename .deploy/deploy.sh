@@ -7,7 +7,7 @@ mkdir docs-build
 npm install
 npm run build
 
-git clone -b gh-pages --single-branch git@github.com:Cadasta/django-skivvy.git dddocs
+git clone -b gh-pages --single-branch git@github.com:oliverroick/django-skivvy.git dddocs
 yes | cp -rf docs-build/index.html dddocs
 yes | cp -rf docs-build/bundle.js dddocs
 yes | cp -rf css/* dddocs/css
