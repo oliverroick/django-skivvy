@@ -3,8 +3,8 @@ django-skivvy
 
 django-skivvy helps you write better and more readable tests for Django views.
 
-.. image:: https://travis-ci.org/Cadasta/django-skivvy.svg?branch=master
-    :target: https://travis-ci.org/Cadasta/django-skivvy
+.. image:: https://travis-ci.org/oliverroick/django-skivvy.svg?branch=master
+    :target: https://travis-ci.org/oliverroick/django-skivvy
 
 Requirements
 ~~~~~~~~~~~~
@@ -21,7 +21,7 @@ Installation
 
 Usage
 ~~~~~
-Refer to the `documentation <https://cadasta.github.io/django-skivvy/#django-skivvy>`_ for further details.
+Refer to the `documentation <https://oliverroick.de/django-skivvy/#django-skivvy>`_ for further details.
 
 
 Documentation
