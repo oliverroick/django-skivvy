@@ -6,11 +6,11 @@ from setuptools import setup
 
 name = 'django-skivvy'
 package = 'skivvy'
-description = ('django-skivvy helps you write better and more readable tests '
-               'for Django views.')
-url = 'https://github.com/Cadasta/django-skivvy'
+description = ('Write faster integration tests for Django views – with less '
+               'code.')
+url = 'https://github.com/oliverroick/django-skivvy'
 author = 'Oliver Roick'
-author_email = 'oroick@cadasta.org'
+author_email = 'oliver.roick@gmail.com'
 license = 'AGPL'
 
 readme_file = os.path.join(os.path.dirname(__file__), 'README.rst')
@@ -81,10 +81,11 @@ setup(
     package_data=get_package_data(package),
     install_requires=[],
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
-        'Framework :: Django :: 1.10',
         'Framework :: Django :: 1.11',
+        'Framework :: Django :: 2.0',
+        'Framework :: Django :: 2.1',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: GNU Affero General Public License v3',
         'Operating System :: OS Independent',
@@ -92,6 +93,8 @@ setup(
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
-        'Topic :: Internet :: WWW/HTTP',
+        'Programming Language :: Python :: 3.7',
+        'Topic :: Software Development :: Testing',
+        'Topic :: Software Development :: Testing :: Mocking',
     ]
 )
