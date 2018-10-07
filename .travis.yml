@@ -20,6 +20,17 @@ jobs:
     - stage: flake8
       python: '3.6'
       script: flake8 skivvy tests
+    - stage: deploy
+      if: tag IS PRESENT
+      python: '3.6'
+      deploy:
+        provider: pypi
+        user: oliverroick
+        password: 
+          secure: "zDS4UlOZl52ePb12ZNJtYIMJloLD0rwUHD5QVUcxjbRnakpOZ00CviVCbypggkCmw3yiqHXXieTgRXKfkHv3E0/rzP+KUuS1X6+VNvCdT7Zmf1qYMKirt2IGXlRJpNAzJ1epN5kkTYko81i0Mjmv+6wXGF6fZx6m4Nyd7FboYG8EQ5gBPYWkKXHJJSRU+oJrKScq5LUYrSs4H6yVGjLlHIvZ5m6LG/O+RpJXksFuP+tYszHriI2VJMxWF7ecpyIRqLEco8gjZmnZkcJYvL/0/owQOghkfghmt61DD/XP3yqs1m39J0s99Xc1JqTIs0LcAmCTPowLduXJqQ9ytuIh4WtBkUu7ZXMxNgt6yfz1tCmhGQOxtxEBoftQcfHwE3zHX31Ej1ZahFDSkzcBQMSc2aHnnhCz8Ujlh79/UlzsRxeZ96qwMXbwqSUrs6N47ZW8JcXhzy117Lg8986BHew2+sLTDi6hLCO6/TftLYScAkvdpgS5qW4+5nLDjbxU+pE1Y/YlKgOEPHdPy5hOLnjfQlrfLeTKAzO3qNx0SXdfpK3W4F9faCnKR2SsXUvmN4Eg4p9qHi4bByTF7ogBtULR/afZBhGWaj4RJ5w2pcRd8lKQ2ElM3z08oilr08KYu3FKiKOSZt0hFLAprUfQOjNoRSzgLK+7c4RjTtWCnQMuRhI="
+        distributions: "sdist bdist_wheel"
+        on:
+          tags: true
 install:
   - pip install -r requirements.txt
   - pip install "django>=$DJANGO_VERSION"
