@@ -3,6 +3,6 @@ pytest==3.8.0
 pytest-cov==2.6.0
 pytest-django==3.4.2
 flake8==3.5.0
-django==2.0.8 # rq.filter: <2.1
+django==1.11.18 # rq.filter: <2.0
 djangorestframework==3.8.2
 
