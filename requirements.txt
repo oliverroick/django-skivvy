@@ -1,8 +1,7 @@
 # Test requirements
-pytest==3.8.0
-pytest-cov==2.6.0
-pytest-django==3.4.2
-flake8==3.5.0
+djangorestframework==3.9.0
+flake8==3.6.0
+pytest==4.1.0
+pytest-cov==2.6.1
+pytest-django==3.4.4
 django==1.11.18 # rq.filter: <2.0
-djangorestframework==3.8.2
-
