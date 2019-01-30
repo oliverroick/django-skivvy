@@ -34,3 +34,12 @@ There's a script to help you build and deploy docs to the `gh-pages` branch. To 
 .. code-block::
 
     ./.deploy/deploy.sh
+
+Contributors
+~~~~~~~~~~~~~
+
+- `Adri <https://github.com/amplifi>`_
+- `Anthony Lukach <https://github.com/alukach>`_
+- `Bruno Alla <https://github.com/browniebroke>`_
+- `Parthvi Vala <https://github.com/valaparthvi>`_
+- `Oliver Roick <https://github.com/oliverroick>`_
