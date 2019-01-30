@@ -23,6 +23,13 @@ jobs:
     - stage: deploy
       if: tag IS PRESENT
       python: '3.6'
+      before_deploy:
+      - PACKAGE_VERSION=$(python setup.py --version)
+      - |
+        if [[ "$PACKAGE_VERSION" != "$TRAVIS_TAG" ]]; then
+          echo "Git ($TRAVIS_TAG) and Package ($PACKAGE_VERSION) versions do not match. Have you updated __init__.py?"
+          exit 1
+        fi;
       deploy:
         provider: pypi
         user: oliverroick
