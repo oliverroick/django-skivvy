@@ -214,12 +214,12 @@ def test_get_template_attribute():
 
 
 def _get_success_url_kwargs(self):
-        if hasattr(self, 'setup_success_url_kwargs'):
-            return self.setup_success_url_kwargs()
-        elif hasattr(self, 'success_url_kwargs'):
-            return self.success_url_kwargs
-        else:
-            return self._get_url_kwargs()
+    if hasattr(self, 'setup_success_url_kwargs'):
+        return self.setup_success_url_kwargs()
+    elif hasattr(self, 'success_url_kwargs'):
+        return self.success_url_kwargs
+    else:
+        return self._get_url_kwargs()
 
 
 def test_get_success_url_kwargs_unconfigured():
@@ -455,7 +455,7 @@ def test_request_redirect_response():
     assert case._request.method == 'GET'
 
     assert response.status_code == 302
-    assert response.content is ''
+    assert response.content == ''
     assert response.location == '/redirect/'
     assert 'content-type' in response.headers
     assert len(response.messages) == 0
