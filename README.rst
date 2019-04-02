@@ -9,7 +9,7 @@ django-skivvy helps you write better and more readable tests for Django views.
 Requirements
 ~~~~~~~~~~~~
 - Python 3.4, 3.5, 3.6, 3.7
-- Django 1.11, 2.0, 2.1
+- Django 1.11, 2.1, 2.2
 
 
 Installation
