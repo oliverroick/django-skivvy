@@ -1,7 +1,7 @@
 # Test requirements
 djangorestframework==3.9.4
 flake8==3.7.7
-pytest==4.6.2
+pytest==5.0.0
 pytest-cov==2.7.1
-pytest-django==3.5.0
-django==1.11.21 # rq.filter: <2.0
+pytest-django==3.5.1
+django==1.11.22 # rq.filter: <2.0
