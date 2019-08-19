@@ -4,4 +4,4 @@ flake8==3.7.7
 pytest==4.6.4
 pytest-cov==2.7.1
 pytest-django==3.5.1
-django==1.11.22 # rq.filter: <2.0
+django==1.11.23 # rq.filter: <2.0
