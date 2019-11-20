@@ -3,6 +3,8 @@ django-skivvy
 
 django-skivvy helps you write better and more readable tests for Django views.
 
+**NOTE:** django-skivvy is now archived; `here's why <https://oliverroick.de/thoughts/2019/retiring-a-project.html>`_. If you want to continue maintaining the project, do get in touch.
+
 .. image:: https://travis-ci.org/oliverroick/django-skivvy.svg?branch=master
     :target: https://travis-ci.org/oliverroick/django-skivvy
 
